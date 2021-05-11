@@ -1,0 +1,13 @@
+name: Train
+version: ${project.version}
+main: me.wincho.train.Train
+api-version: 1.16
+authors: [ wincho ]
+commands:
+  create_train:
+    description: create train
+    aliases:
+      - ct
+  /station:
+    description: create station
+    usage: //station [num]
