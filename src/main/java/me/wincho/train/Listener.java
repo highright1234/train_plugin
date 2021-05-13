@@ -120,7 +120,10 @@ public class Listener implements org.bukkit.event.Listener, CommandExecutor {
                 } else if (args[0].equals("rm")) {
                     plugin.getConfig().set(loc, null);
                     sender.sendMessage(Component.text(ChatColor.GREEN + "정차구간 제거 성공."));
+                } else {
+                    return false;
                 }
+                return true;
             }
         }
         return false;

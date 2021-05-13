@@ -1,5 +1,6 @@
 package me.wincho.train;
 
+import com.google.common.hash.BloomFilter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,8 +24,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class Train extends JavaPlugin {
-    public static final int SPEED = 5;
     public static Map<UUID, Vector> trainTargetPos = new HashMap<>();
+    public static Map<UUID, Integer> trainSpeed = new HashMap<>();
+    private Map<UUID, Integer> trainMaxUsers = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -35,12 +37,16 @@ public final class Train extends JavaPlugin {
         }
         if (getConfig().get("train_target_pos") != null)
             trainTargetPos = (HashMap<UUID, Vector>) getConfig().get("train_target_pos");
+        if (getConfig().get("train_speed") != null)
+            trainSpeed = (Map<UUID, Integer>) getConfig().get("train_speed");
+        if (getConfig().get("train_max_users") != null)
+            trainMaxUsers = (Map<UUID, Integer>) getConfig().get("train_max_users");
         getCommand("create_train").setExecutor(this);
         getCommand("/station").setExecutor(new Listener());
         Bukkit.getPluginManager().registerEvents(new Listener(), this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (Entity entity : Bukkit.getWorld("world").getEntities()) {
-                for (int i = 0; i < SPEED; i++) {
+                for (int i = 0; i < trainSpeed.get(entity.getUniqueId()); i++) {
                     if (entity.getScoreboardTags().contains("train")) {
                         if (trainTargetPos.get(entity.getUniqueId()) == null)
                             trainTargetPos.put(entity.getUniqueId(), new Vector(0.1, 0, 0));
@@ -198,6 +204,8 @@ public final class Train extends JavaPlugin {
                 int y = Integer.parseInt(args[1]);
                 int z = Integer.parseInt(args[2]);
                 int count = Integer.parseInt(args[3]);
+                int speed = Integer.parseInt(args[4]);
+                int max_user = Integer.parseInt(args[5]);
                 int wait = 3;
                 if (count > 10) {
                     if (sender instanceof Player) {
@@ -211,6 +219,8 @@ public final class Train extends JavaPlugin {
                         World world = Bukkit.getWorld("world");
                         Location location = new Location(world, x, y, z);
                         Minecart cart = world.spawn(location.toCenterLocation(), Minecart.class);
+                        trainSpeed.put(cart.getUniqueId(), speed);
+                        trainMaxUsers.put(cart.getUniqueId(), max_user);
                         cart.addScoreboardTag(String.valueOf(finalI));
                         cart.addScoreboardTag("train");
                     }, wait);
