@@ -26,7 +26,7 @@ import java.util.UUID;
 public final class Train extends JavaPlugin {
     public static Map<UUID, Vector> trainTargetPos = new HashMap<>();
     public static Map<UUID, Integer> trainSpeed = new HashMap<>();
-    private Map<UUID, Integer> trainMaxUsers = new HashMap<>();
+    public static Map<UUID, Integer> trainMaxUsers = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -194,6 +194,8 @@ public final class Train extends JavaPlugin {
             e.printStackTrace();
         }
         getConfig().set("train_target_pos", trainTargetPos);
+        getConfig().set("train_speed", trainSpeed);
+        getConfig().set("train_max_users", trainMaxUsers);
     }
 
     @Override

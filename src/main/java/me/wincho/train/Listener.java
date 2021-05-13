@@ -33,7 +33,7 @@ public class Listener implements org.bukkit.event.Listener, CommandExecutor {
         if (entity.getScoreboardTags().contains("train")) {
             if (trainUsers.get(entity.getUniqueId()) == null) trainUsers.put(entity.getUniqueId(), 1);
             else {
-                if (trainUsers.get(entity.getUniqueId()) < 3) {
+                if (trainUsers.get(entity.getUniqueId()) < Train.trainMaxUsers.get(entity.getUniqueId())) {
                     trainUsers.put(entity.getUniqueId(), trainUsers.get(entity.getUniqueId()) + 1);
                     player.setGameMode(GameMode.SPECTATOR);
                     player.setSpectatorTarget(entity);
