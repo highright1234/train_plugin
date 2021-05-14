@@ -80,48 +80,60 @@ public class Listener implements org.bukkit.event.Listener, CommandExecutor {
         if (label.equals("/station")) {
             String loc = selectedBlock.getLocation().getBlockX() + "_" + selectedBlock.getLocation().getBlockY() + "_" + selectedBlock.getLocation().getBlockZ();
             if (args.length >= 1) {
-                if (args[0].equals("1")) {
-                    plugin.getConfig().set(loc, RailData.STATION1.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                } else if (args[0].equals("2")) {
-                    plugin.getConfig().set(loc, RailData.STATION2.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                } else if (args[0].equals("3")) {
-                    plugin.getConfig().set(loc, RailData.STATION3.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                } else if (args[0].equals("4")) {
-                    plugin.getConfig().set(loc, RailData.STATION4.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                    
-                } else if (args[0].equals("5")) {
-                    plugin.getConfig().set(loc, RailData.STATION5.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                    
-                } else if (args[0].equals("6")) {
-                    plugin.getConfig().set(loc, RailData.STATION6.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                    
-                } else if (args[0].equals("7")) {
-                    plugin.getConfig().set(loc, RailData.STATION7.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                    
-                } else if (args[0].equals("8")) {
-                    plugin.getConfig().set(loc, RailData.STATION8.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                    
-                } else if (args[0].equals("9")) {
-                    plugin.getConfig().set(loc, RailData.STATION9.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                    
-                } else if (args[0].equals("10")) {
-                    plugin.getConfig().set(loc, RailData.STATION10.name());
-                    sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
-                    
-                } else if (args[0].equals("rm")) {
-                    plugin.getConfig().set(loc, null);
-                    sender.sendMessage(Component.text(ChatColor.GREEN + "정차구간 제거 성공."));
-                } else {
-                    return false;
+                switch (args[0]) {
+                    case "1":
+                        plugin.getConfig().set(loc, RailData.STATION1.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+                        break;
+                    case "2":
+                        plugin.getConfig().set(loc, RailData.STATION2.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+                        break;
+                    case "3":
+                        plugin.getConfig().set(loc, RailData.STATION3.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+                        break;
+                    case "4":
+                        plugin.getConfig().set(loc, RailData.STATION4.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+
+                        break;
+                    case "5":
+                        plugin.getConfig().set(loc, RailData.STATION5.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+
+                        break;
+                    case "6":
+                        plugin.getConfig().set(loc, RailData.STATION6.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+
+                        break;
+                    case "7":
+                        plugin.getConfig().set(loc, RailData.STATION7.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+
+                        break;
+                    case "8":
+                        plugin.getConfig().set(loc, RailData.STATION8.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+
+                        break;
+                    case "9":
+                        plugin.getConfig().set(loc, RailData.STATION9.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+
+                        break;
+                    case "10":
+                        plugin.getConfig().set(loc, RailData.STATION10.name());
+                        sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+
+                        break;
+                    case "rm":
+                        plugin.getConfig().set(loc, null);
+                        sender.sendMessage(Component.text(ChatColor.GREEN + "정차구간 제거 성공."));
+                        break;
+                    default:
+                        return false;
                 }
                 return true;
             }

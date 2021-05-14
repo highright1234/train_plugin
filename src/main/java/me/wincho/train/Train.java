@@ -1,21 +1,13 @@
 package me.wincho.train;
 
-import com.google.common.hash.BloomFilter;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.data.Rail;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,11 +41,11 @@ public final class Train extends JavaPlugin {
             trainSpeed = (Map<UUID, Integer>) getConfig().get("train_speed");
         if (getConfig().get("train_max_users") != null)
             trainMaxUsers = (Map<UUID, Integer>) getConfig().get("train_max_users");
-        getCommand("create_train").setExecutor(this);
-        getCommand("/station").setExecutor(new Listener());
+        Objects.requireNonNull(getCommand("create_train")).setExecutor(new me.wincho.train.Command(this));
+        Objects.requireNonNull(getCommand("/station")).setExecutor(new Listener());
         Bukkit.getPluginManager().registerEvents(new Listener(), this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            for (Entity entity : Bukkit.getWorld("world").getEntities()) {
+            for (Entity entity : Objects.requireNonNull(Bukkit.getWorld("world")).getEntities()) {
                 if (trainSpeed.get(entity.getUniqueId())!=null) {
                     for (int i = 0; i < trainSpeed.get(entity.getUniqueId()); i++) {
                         if (entity.getScoreboardTags().contains("train")) {
@@ -61,35 +53,7 @@ public final class Train extends JavaPlugin {
                                 trainTargetPos.put(entity.getUniqueId(), new Vector(0.1, 0, 0));
 
                             if (entity.getLocation().getBlock().getType().equals(Material.RAIL) || entity.getLocation().getBlock().getType().equals(Material.POWERED_RAIL)) {
-                                Rail rail = (Rail) entity.getLocation().getBlock().getBlockData();
-                                Vector getTrainTargetPos = trainTargetPos.get(entity.getUniqueId());
-                                double pos = asdf(getTrainTargetPos.getX());
-                                if (Math.abs(getTrainTargetPos.getX()) == 0.1) { //EAST
-                                    if (rail.getShape().equals(Rail.Shape.ASCENDING_EAST)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(pos, pos, 0));
-                                    }
-                                    if (rail.getShape().equals(Rail.Shape.EAST_WEST)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(pos, 0, 0));
-                                    } else if (rail.getShape().equals(Rail.Shape.SOUTH_WEST)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, pos));
-                                    } else if (rail.getShape().equals(Rail.Shape.NORTH_WEST)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, -pos));
-                                    }
-
-                                } else if (Math.abs(getTrainTargetPos.getZ()) == 0.1) { //SOUTH
-                                    if (rail.getShape().equals(Rail.Shape.NORTH_SOUTH)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, pos));
-                                    } else if (rail.getShape().equals(Rail.Shape.NORTH_WEST)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(-pos, 0, 0));
-                                    } else if (rail.getShape().equals(Rail.Shape.NORTH_EAST)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(0.1, 0, 0));
-                                    }
-                                    if (rail.getShape().equals(Rail.Shape.ASCENDING_SOUTH)) {
-                                        trainTargetPos.put(entity.getUniqueId(), new Vector(0, pos, pos));
-                                    } else {
-                                        trainTargetPos.put(entity.getUniqueId(), trainTargetPos.get(entity.getUniqueId()).setY(0));
-                                    }
-                                }
+                                selectPath((Rail) entity.getLocation().getBlock().getBlockData(), entity);
                             }
 
                             if (getConfig().get(entity.getLocation().getBlockX() + "_" + entity.getLocation().getBlockY() + "_" + entity.getLocation().getBlockZ()) != null) {
@@ -102,9 +66,7 @@ public final class Train extends JavaPlugin {
                                             if (data.equals("STATION" + RailData.fromId(i)) && entity.getScoreboardTags().contains(Integer.toString(i))) {
                                                 Vector org = trainTargetPos.get(entity.getUniqueId());
                                                 trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, 0));
-                                                Bukkit.getScheduler().runTaskLater(this, () -> {
-                                                    trainTargetPos.put(entity.getUniqueId(), org);
-                                                }, delay);
+                                                Bukkit.getScheduler().runTaskLater(this, () -> trainTargetPos.put(entity.getUniqueId(), org), delay);
                                             }
                                         }
                                     }
@@ -120,6 +82,36 @@ public final class Train extends JavaPlugin {
             }
         }, 0, 0);
     }
+    private void selectPath(Rail rail, Entity entity) {
+        Vector getTrainTargetPos = trainTargetPos.get(entity.getUniqueId());
+        double pos = asdf(getTrainTargetPos.getX());
+        if (Math.abs(getTrainTargetPos.getX()) == 0.1) {
+            if (rail.getShape().equals(Rail.Shape.ASCENDING_EAST)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(pos, pos, 0));
+            }
+            if (rail.getShape().equals(Rail.Shape.EAST_WEST)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(pos, 0, 0));
+            } else if (rail.getShape().equals(Rail.Shape.SOUTH_WEST)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, pos));
+            } else if (rail.getShape().equals(Rail.Shape.NORTH_WEST)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, -pos));
+            }
+
+        } else if (Math.abs(getTrainTargetPos.getZ()) == 0.1) {
+            if (rail.getShape().equals(Rail.Shape.NORTH_SOUTH)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, pos));
+            } else if (rail.getShape().equals(Rail.Shape.NORTH_WEST)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(-pos, 0, 0));
+            } else if (rail.getShape().equals(Rail.Shape.NORTH_EAST)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(0.1, 0, 0));
+            }
+            if (rail.getShape().equals(Rail.Shape.ASCENDING_SOUTH)) {
+                trainTargetPos.put(entity.getUniqueId(), new Vector(0, pos, pos));
+            } else {
+                trainTargetPos.put(entity.getUniqueId(), trainTargetPos.get(entity.getUniqueId()).setY(0));
+            }
+        }
+    }
 
     @Override
     public void onDisable() {
@@ -131,41 +123,5 @@ public final class Train extends JavaPlugin {
         getConfig().set("train_target_pos", trainTargetPos);
         getConfig().set("train_speed", trainSpeed);
         getConfig().set("train_max_users", trainMaxUsers);
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (label.equals("create_train")) {
-            if (args.length >= 4) {
-                int x = Integer.parseInt(args[0]);
-                int y = Integer.parseInt(args[1]);
-                int z = Integer.parseInt(args[2]);
-                int count = Integer.parseInt(args[3]);
-                int speed = Integer.parseInt(args[4]);
-                int max_user = Integer.parseInt(args[5]);
-                int wait = 3;
-                if (count > 10) {
-                    if (sender instanceof Player) {
-                        ((Player) sender).kick(Component.text("10개가 최대야 ㅁㅊㄴ아"));
-                    }
-                    return false;
-                }
-                for (int i = 0; i < count; i++) {
-                    int finalI = i + 1;
-                    Bukkit.getScheduler().runTaskLater(this, () -> {
-                        World world = Bukkit.getWorld("world");
-                        Location location = new Location(world, x, y, z);
-                        Minecart cart = world.spawn(location.toCenterLocation(), Minecart.class);
-                        trainSpeed.put(cart.getUniqueId(), speed);
-                        trainMaxUsers.put(cart.getUniqueId(), max_user);
-                        cart.addScoreboardTag(String.valueOf(finalI));
-                        cart.addScoreboardTag("train");
-                    }, wait);
-                    wait += 3;
-                }
-                return true;
-            }
-        }
-        return false;
     }
 }
