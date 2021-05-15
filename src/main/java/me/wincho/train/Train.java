@@ -1,6 +1,5 @@
 package me.wincho.train;
 
-import com.google.common.hash.BloomFilter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -49,11 +48,11 @@ public final class Train extends JavaPlugin {
             trainSpeed = (Map<UUID, Integer>) getConfig().get("train_speed");
         if (getConfig().get("train_max_users") != null)
             trainMaxUsers = (Map<UUID, Integer>) getConfig().get("train_max_users");
-        getCommand("create_train").setExecutor(this);
-        getCommand("/station").setExecutor(new Listener());
+        Objects.requireNonNull(getCommand("create_train")).setExecutor(this);
+        Objects.requireNonNull(getCommand("/station")).setExecutor(new Listener());
         Bukkit.getPluginManager().registerEvents(new Listener(), this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            for (Entity entity : Bukkit.getWorld("world").getEntities()) {
+            for (Entity entity : Objects.requireNonNull(Bukkit.getWorld("world")).getEntities()) {
                 if (trainSpeed.get(entity.getUniqueId())!=null) {
                     for (int i = 0; i < trainSpeed.get(entity.getUniqueId()); i++) {
                         if (entity.getScoreboardTags().contains("train")) {
@@ -102,9 +101,7 @@ public final class Train extends JavaPlugin {
                                             if (data.equals("STATION" + RailData.fromId(i)) && entity.getScoreboardTags().contains(Integer.toString(i))) {
                                                 Vector org = trainTargetPos.get(entity.getUniqueId());
                                                 trainTargetPos.put(entity.getUniqueId(), new Vector(0, 0, 0));
-                                                Bukkit.getScheduler().runTaskLater(this, () -> {
-                                                    trainTargetPos.put(entity.getUniqueId(), org);
-                                                }, delay);
+                                                Bukkit.getScheduler().runTaskLater(this, () -> trainTargetPos.put(entity.getUniqueId(), org), delay);
                                             }
                                         }
                                     }
@@ -155,6 +152,7 @@ public final class Train extends JavaPlugin {
                     Bukkit.getScheduler().runTaskLater(this, () -> {
                         World world = Bukkit.getWorld("world");
                         Location location = new Location(world, x, y, z);
+                        assert world != null;
                         Minecart cart = world.spawn(location.toCenterLocation(), Minecart.class);
                         trainSpeed.put(cart.getUniqueId(), speed);
                         trainMaxUsers.put(cart.getUniqueId(), max_user);
