@@ -89,6 +89,7 @@ public class Listener implements org.bukkit.event.Listener, CommandExecutor {
                     if (args[0].equals(Integer.toString(i))) {
                         plugin.getConfig().set(loc, RailData.fromId(i));
                         sender.sendMessage(Component.text(ChatColor.GREEN + args[0] + "번째 칸의 정차구간으로 지정되었습니다!"));
+                        return true;
                     }
                 }
             }
